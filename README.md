@@ -13,7 +13,7 @@ O kit cobre descoberta do sistema, requisitos, arquitetura, implementação, rev
 | Criar uma aplicação | [Projeto novo](docs/08-projeto-novo.md) | Escopo, decisões e primeira entrega vertical |
 | Melhorar um projeto no GitHub | [Sistema existente](docs/09-sistema-existente.md) | Baseline, mapa do sistema e plano incremental |
 | Entender vários repositórios | [Contexto multi-repositório](docs/10-multi-repositorio.md) | Inventário, contratos e jornadas entre serviços |
-| Aplicar no AgendaLu | [Guia AgendaLu](docs/16-agendalu.md) | Roteiro executável sem presumir stack ou repositórios |
+| Ver um exemplo de adoção | [Adoção prática](docs/16-adocao-pratica.md) | Roteiro executável sem presumir stack ou repositórios |
 | Executar trabalho cotidiano | [Catálogo de skills](skills/README.md) | Procedimento escolhido pelo objetivo da tarefa |
 
 ## Comece pelo diagnóstico
@@ -33,6 +33,8 @@ Isso cria `.ai-kit/` com o playbook e configurações iniciais, acrescenta um bl
 
 Para um projeto novo use `--mode new`; para uma pasta central de contexto de vários repositórios use `--mode multi-repo`. O comando não gera a aplicação. Após adoção, configure `.ai-kit/project.json` e o manifesto quando houver vários repos. Checks vazios significam **não configurado**, nunca aprovação.
 
+Para descoberta nativa das skills, acrescente `--adapter codex`, `--adapter claude`, `--adapter copilot` ou `--adapter cursor`; as opções podem ser combinadas. As entradas geradas apontam para os procedimentos canônicos e não alteram configurações globais. Veja [integrações e limites](docs/21-integracoes.md).
+
 Os [scripts de configuração](docs/20-configuracao.md) acompanham a instalação. Da raiz do produto:
 
 ```sh
@@ -42,6 +44,17 @@ python3 .ai-kit/scripts/configure.py --target . --stack "Sua linguagem" --archit
 ```
 
 Python é o runtime dessas automações, sem virar dependência do produto. Elas aceitam comandos de qualquer linguagem e não os executam automaticamente. O diagnóstico retorna `2` enquanto houver lacunas de configuração.
+
+## Manter o kit adotado
+
+O kit 3.0 registra hashes de arquivos gerenciados e oferece [update com plano, conflitos e recuperação](docs/22-atualizacao.md). Da raiz do produto:
+
+```sh
+python3 .ai-kit/scripts/update.py --target . --source ../kit
+# Revise o plano e repita com --apply. Use uma origem local revisada.
+```
+
+Configurações do produto são preservadas. Alterações locais e upstream incompatíveis bloqueiam o update; não há sobrescrita forçada. O [changelog](CHANGELOG.md) registra a evolução.
 
 ## Como o agente trabalha
 
@@ -65,7 +78,9 @@ Em sistemas grandes, analisar o todo significa cobrir repositórios, jornadas, c
 python3 scripts/verify.py
 ```
 
-O gate valida estrutura, links locais, JSON, metadados das skills, sintaxe Python e testes das automações e da demo. O scanner de segredos é heurístico e limitado. O gate do kit **não valida a qualidade de uma aplicação consumidora**. A versão de referência está em `.python-version`; a matriz do CI cobre Python 3.10, 3.12 e 3.14. Consulte [a validação desta entrega](docs/18-validacao.md) para distinguir configuração e execução comprovada.
+O gate valida estrutura, links locais, JSON, metadados das skills, sintaxe Python e testes das automações e da demo. O scanner de segredos é heurístico e limitado. O gate do kit **não valida a qualidade de uma aplicação consumidora**. A matriz do CI inclui Ubuntu (Python 3.10/3.12/3.14), macOS e Windows (Python 3.12); configuração e execução comprovada são distinguidas em [validação](docs/18-validacao.md).
+
+As [avaliações de comportamento](docs/23-avaliacoes.md) usam fixtures versionados e revisão independente, separadas do gate determinístico. A CI não executa modelos automaticamente. A [próxima etapa de evolução](docs/24-evolucao.md) mantém explícito o que ainda falta.
 
 A [demo opcional](examples/taskboard/index.html) continua disponível com `python3 examples/taskboard/server.py` em `http://127.0.0.1:8000`: dados fictícios, estado apenas no navegador, sem autenticação. O [workshop](workshop/ROTEIRO.md) é um exercício, não a estrutura exigida para seus projetos.
 

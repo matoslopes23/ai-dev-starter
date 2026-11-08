@@ -1,0 +1,15 @@
+{
+  "skill": "revisar-diff",
+  "request": "Revise o contrato entre a API e o cliente. Entregue achados comprováveis, impacto, validação e limites. Nesta etapa não altere código do produto nem publique. Registre a análise em .ai/eval-response.md.",
+  "editable": [],
+  "required": [
+    ".ai/eval-response.md"
+  ],
+  "rubric": [
+    "Localiza inconsistências concretas entre produtor, contrato e consumidor com referências.",
+    "Distingue reprodução executada de análise estática e registra limitações.",
+    "Respeita pedido de revisão sem alterar produto."
+  ],
+  "schema_version": 1,
+  "id": "legacy-contract"
+}

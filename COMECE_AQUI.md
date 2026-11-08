@@ -28,6 +28,8 @@ python3 scripts/adopt.py --target ../produto --name Produto --mode existing --ap
 
 O primeiro comando mostra o plano; o segundo grava. Use `--mode new` para começar uma aplicação, ou `--mode multi-repo` para uma pasta central de contexto. A instalação preserva instruções anteriores e não cria a aplicação nem modifica seu histórico Git.
 
+Para expor as skills na sua ferramenta, acrescente `--adapter codex`, `--adapter claude`, `--adapter copilot` ou `--adapter cursor` ao comando. Confira [integrações](docs/21-integracoes.md) e, em instalações existentes, use [update](docs/22-atualizacao.md).
+
 ## 3. Configure e confira
 
 Agora, da raiz da aplicação, com o kit instalado:
@@ -48,6 +50,6 @@ Para comandos, componentes e restrições, siga [configuração](docs/20-configu
 - [Projeto novo](docs/08-projeto-novo.md): descubra requisitos e implemente a primeira fatia autorizada.
 - [Sistema existente](docs/09-sistema-existente.md): estabeleça baseline, mapa e plano incremental.
 - [Vários repositórios](docs/10-multi-repositorio.md): trace jornadas e contratos entre os componentes.
-- [AgendaLu](docs/16-agendalu.md): roteiro específico de adoção, sem presumir sua stack.
+- [Adoção prática](docs/16-adocao-pratica.md): roteiro específico de adoção, sem presumir sua stack.
 
 Os [perfis](docs/14-perfis.md) e a [neutralidade de stack](docs/19-neutralidade.md) explicam como adaptar os gates. Listas de exemplos ajudam a começar; elas não limitam quais linguagens e arquiteturas podem usar o kit.

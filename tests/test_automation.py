@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 import subprocess
 import tempfile
@@ -6,6 +7,7 @@ import unittest
 from unittest.mock import patch
 
 from scripts import adopt, inventory, verify
+from scripts.installation import digest
 
 
 class AdoptionTests(unittest.TestCase):
@@ -51,6 +53,8 @@ class AdoptionTests(unittest.TestCase):
         origin = json.loads((kit / "origin.json").read_text())
         self.assertEqual(origin["kit_version"], adopt.KIT_VERSION)
         self.assertIn("AGENTS.md", origin["sha256"])
+        for relative, expected in origin["managed"].items():
+            self.assertEqual(digest((self.target / relative).read_bytes()), expected)
         self.assertEqual(json.loads((kit / "system.json").read_text())["repositories"], [])
 
     def test_repeat_install_refuses_without_changes(self):
@@ -136,10 +140,12 @@ class InventoryTests(unittest.TestCase):
 
     def repo(self, name="api"):
         path = self.root / name
+        hooks = self.root / "empty-hooks"
+        hooks.mkdir(exist_ok=True)
         subprocess.run(["git", "init", "-q", "-b", "main", str(path)], check=True)
         subprocess.run(["git", "-C", str(path), "-c", "user.name=Kit Test",
                         "-c", "user.email=test@example.invalid", "-c", "commit.gpgsign=false",
-                        "-c", "core.hooksPath=/dev/null", "commit", "-q", "--allow-empty", "-m", "fixture"], check=True)
+                        "-c", "core.hooksPath=" + str(hooks), "commit", "-q", "--allow-empty", "-m", "fixture"], check=True)
         return path
 
     def test_empty_and_missing_paths_are_gaps(self):

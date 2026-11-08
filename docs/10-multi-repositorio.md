@@ -1,15 +1,15 @@
 # Entender um sistema com vários repositórios
 
-Um workspace de engenharia reúne contexto; ele não precisa fundir históricos nem transformar o sistema em monorepo. Mantenha o kit e os repositórios do produto em pastas separadas. A topologia abaixo é ilustrativa, não afirma que AgendaLu tenha estes componentes:
+Um workspace de engenharia reúne contexto; ele não precisa fundir históricos nem transformar o sistema em monorepo. Mantenha o kit e os repositórios do produto em pastas separadas. A topologia abaixo é ilustrativa, não pressupõe que seu sistema tenha estes componentes:
 
 ```text
 trabalho/
   template-ia-desenvolvimento/
-  agendalu-contexto/          # mapa e decisões do sistema
+  sistema-contexto/          # mapa e decisões do sistema
   repos/                    # checkouts autorizados, estrutura livre
 ```
 
-Crie `agendalu-contexto`, adote com `--mode multi-repo` e edite `.ai-kit/system.json`. Cada item de `repositories` tem `id`, `path` (relativo ao manifesto ou absoluto), `url` opcional sem credenciais, `role`, `owner` e `depends_on` (IDs existentes). Caminhos locais podem ficar apenas em uma cópia privada; não publique a topologia privada sem revisão.
+Crie `sistema-contexto`, adote com `--mode multi-repo` e edite `.ai-kit/system.json`. Cada item de `repositories` tem `id`, `path` (relativo ao manifesto ou absoluto), `url` opcional sem credenciais, `role`, `owner` e `depends_on` (IDs existentes). Caminhos locais podem ficar apenas em uma cópia privada; não publique a topologia privada sem revisão.
 
 Exemplo de um item, a substituir pelos dados confirmados do sistema. `path: null` registra um repo conhecido ainda sem checkout; ele não será clonado pelo inventário.
 
@@ -26,7 +26,7 @@ Exemplo de um item, a substituir pelos dados confirmados do sistema. `path: null
 
 ```sh
 # Execute do checkout central original; o comando é somente leitura, sem rede.
-python3 scripts/inventory.py --manifest ../agendalu-contexto/.ai-kit/system.json
+python3 scripts/inventory.py --manifest ../sistema-contexto/.ai-kit/system.json
 ```
 
 Na raiz de um consumidor instalado com kit 2.1 ou posterior, use `python3 .ai-kit/scripts/inventory.py --manifest .ai-kit/system.json`. Instalações 2.0 não incluíam scripts e precisam do checkout central ou de atualização revisada. Consulte [portabilidade](17-portabilidade.md).

@@ -18,7 +18,7 @@ EXCLUDED = {".git", ".ai", ".ai-kit", "__pycache__", ".venv", "venv", "node_modu
             ".ruff_cache", "coverage", ".next"}
 TEXT_SUFFIXES = {".md", ".py", ".json", ".yml", ".yaml", ".toml", ".ini", ".txt",
                  ".html", ".css", ".js", ".ts", ".tsx", ".jsx", ".xml", ".sh", ".csv", ".patch"}
-TEXT_NAMES = {"LICENSE", ".gitignore", ".editorconfig", ".env.example", ".python-version"}
+TEXT_NAMES = {"LICENSE", ".gitignore", ".gitattributes", ".editorconfig", ".env.example", ".python-version"}
 PATTERNS = [r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----",
             r"gh[pousr]_[A-Za-z0-9]{30,}", r"AKIA[0-9A-Z]{16}"]
 
@@ -69,7 +69,7 @@ def validate_skills(root):
 
 
 def inspect_tree(root):
-    required = ["AGENTS.md", "README.md", "project.json", "ia-context/CONTEXT_ROUTER.md",
+    required = ["AGENTS.md", "README.md", "project.json", "kit-version.json", "ia-context/CONTEXT_ROUTER.md",
                 "templates/task.md", "templates/handoff.md", "templates/system.example.json", "LICENSE"]
     for name in required:
         check((root / name).is_file(), "Arquivo ausente: " + name)

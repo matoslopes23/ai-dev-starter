@@ -4,13 +4,19 @@ permissions:
   contents: read
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
     strategy:
       matrix:
-        python: ['3.10', '3.12', '3.14']
+        include:
+          - {os: ubuntu-latest, python: '3.10'}
+          - {os: ubuntu-latest, python: '3.12'}
+          - {os: ubuntu-latest, python: '3.14'}
+          - {os: macos-latest, python: '3.12'}
+          - {os: windows-latest, python: '3.12'}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - run: python3 scripts/verify.py
+      - run: python -B scripts/verify.py

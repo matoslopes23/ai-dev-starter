@@ -6,6 +6,8 @@ Entrada mínima: `AGENTS.md` → `project.json` → estado ativo. Use a tabela e
 |---|---|---|
 | Primeiro contato / não sei por onde começar | [Entrada inicial](../COMECE_AQUI.md) | [Prompt inicial](../prompts/inicial.md) |
 | Configurar ou conferir o kit | [Configuração](../docs/20-configuracao.md) | [Neutralidade de stack](../docs/19-neutralidade.md) |
+| Integrar ferramentas / atualizar instalação | [Integrações](../docs/21-integracoes.md) e [update](../docs/22-atualizacao.md) | Plano, conflitos e hashes da instalação |
+| Avaliar skills | [Avaliações](../docs/23-avaliacoes.md) | Harness do checkout central, fixtures e revisão independente |
 | Aplicação do zero | [iniciar-projeto](../skills/iniciar-projeto/SKILL.md) | [Projeto novo](../docs/08-projeto-novo.md) |
 | Primeira adoção / sistema existente | [adotar-sistema](../skills/adotar-sistema/SKILL.md) | [Sistema existente](../docs/09-sistema-existente.md) |
 | Contexto global / vários repositórios | [mapear-sistema](../skills/mapear-sistema/SKILL.md) | [Multi-repo](../docs/10-multi-repositorio.md) |

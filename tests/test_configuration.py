@@ -93,9 +93,10 @@ class ConfigurationTests(unittest.TestCase):
         data["team_extension"] = {"contract": "preserve"}
         self.config.write_text(json.dumps(data), encoding="utf-8")
         self.config.chmod(0o640)
+        mode = self.config.stat().st_mode & 0o777
         configure.configure(self.root, {"stack": ["Ruby"]}, True)
         self.assertEqual(self.read()["team_extension"], {"contract": "preserve"})
-        self.assertEqual(self.config.stat().st_mode & 0o777, 0o640)
+        self.assertEqual(self.config.stat().st_mode & 0o777, mode)
 
     def test_symlink_configuration_is_refused(self):
         external = self.root / "external.json"

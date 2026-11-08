@@ -1,31 +1,27 @@
-# Validação da evolução do kit
+# Validação e proveniência
 
-Data: 2026-11-08. Ambiente local: macOS, Python 3.14 via `/opt/homebrew/bin/python3`, Git e Node 24.21.0. Branch `main`, HEAD-base `76c8b61f6922ee5cfb7377842128b437a6522ca3`, alterações locais sem commit. O repositório tinha apenas README rastreado antes da tarefa; os demais arquivos preexistentes foram preservados e os arquivos novos fazem parte da entrega local.
+Data: 2026-11-08. Esta página distingue o histórico publicado da verificação local da evolução 3.0. Alterações de conteúdo após uma verificação exigem repetir os checks afetados.
 
-## Evidências automatizadas
+## Base publicada
 
-- PASSOU: `/opt/homebrew/bin/python3 -B scripts/verify.py`: 23 testes de adoção/inventário/configuração/verificação e 8 testes de domínio/HTTP da demo. Os sockets HTTP usam loopback; a execução completa foi autorizada fora do sandbox.
-- PASSOU: estrutura, JSON, links Markdown locais explícitos, metadados de 24 skills e sintaxe Python no mesmo gate. O verificador não valida URLs remotas, anchors ou links por referência.
-- PASSOU: parse YAML dos frontmatters das 24 skills com Ruby/Psych, disponível no ambiente, sem instalar dependências.
-- PASSOU: sintaxe do workflow com Ruby/Psych; matriz declarada para Python 3.10, 3.12 e 3.14. A declaração não comprova execução remota.
-- PASSOU: `git apply --check workshop/reference/filter.patch`; o exercício continua aplicável à demo preservada.
-- PASSOU: revisão de whitespace de todos os arquivos textuais do pacote, incluindo não rastreados; não apenas `git diff --check`.
+O commit [d1c3ee0](https://github.com/matoslopes23/ai-dev-starter/commit/d1c3ee0aac1e5fbc50af34a0c591a5d9c2a90b6f) publicou o kit 2.1. A [CI correspondente](https://github.com/matoslopes23/ai-dev-starter/actions/runs/42532392797) passou em Ubuntu com Python 3.10, 3.12 e 3.14. O resultado não é atribuído automaticamente à versão posterior.
 
-Os testes da automação verificam plano sem gravação, preservação de arquivos existentes, os três modos de adoção, recusa de instalação repetida/symlinks, recuperação após falha de cópia ou escrita, links do snapshot, manifesto inválido, repositórios ausentes/duplicados/sem commit, metadados reais de fixture Git e ausência de leitura de arquivos sensíveis pelo inventário. O scanner tem reprodução com PNG e dependências ignoradas; nomes conhecidos de credenciais são rejeitados antes de leitura.
+## Evolução 3.0
 
-A evolução 2.1 inclui prompt inicial único e scripts de configuração/diagnóstico no snapshot. Oito testes adicionais verificam linguagens e arquiteturas livres, dry-run, substituição atômica, preservação de extensões/permissões, recusas de configuração inválida e execução das CLIs instaladas. Um comando que criaria um arquivo foi registrado como check; configure e doctor não o executaram. O diagnóstico de configuração distingue lacunas de prontidão para começar a análise, sem aprovar testes do produto.
+Ambiente local de validação: macOS, Python 3.14, Git e Node 24.21.0. Comando: `python -B scripts/verify.py` usando o Python 3.14 disponível. O gate executa 43 testes das automações/harness e 8 da demo, além de estrutura, JSON, links Markdown locais explícitos, sintaxe Python e metadados das 24 skills.
 
-## Exercício independente das skills
+Os testes protegem adoção sem gravação, preservação de instruções/configuração, idiomas/arquiteturas livres, gravação atômica, conflitos entre base/local/nova origem, migração de manifesto 2.1, recusas de symlinks/caminhos inválidos, remoção de arquivo limpo, recuperação em falhas e restauração com integridade. Entradas nativas têm nome/descrição/link canônico verificados; o harness de evals separa checagem estrutural de revisão semântica e invalida scorecards após nova edição.
 
-Foi usado um fixture temporário com API Python, cliente JavaScript, contrato compartilhado e um terceiro repositório conhecido sem checkout. A aplicação das skills de adoção e mapeamento produziu mapa, baseline, diagnóstico e plano sem alterar os dois produtos. Os testes locais dos componentes passavam; a reprodução entre produtor e consumidor expôs incompatibilidade de contrato, priorizada no diagnóstico. A lacuna permaneceu como cobertura parcial.
+[Quatro avaliações comportamentais](25-resultados-evals.md) foram executadas por agentes independentes do revisor em fixtures sintéticos, com reprodução e revisão dos artefatos. Os resultados não comprovam acionamento automático de skills em ferramentas externas nem qualidade de todos os produtos consumidores.
 
-O exercício da versão 2.0 revelou ambiguidade entre checkout central e snapshot instalado, inicialmente corrigida nos guias. A versão 2.1 passou a incluir configuração, diagnóstico e inventário no snapshot; instalação/atualização e gate do kit continuam no checkout central. É uma avaliação sintética pequena, não comprovação de adoção em um sistema real.
+Verificações complementares: whitespace de todos os arquivos do pacote; `git diff --check`; aplicabilidade do patch do workshop; ausência do nome do produto usado originalmente apenas como exemplo. Resultados finais e commit testado são registrados no handoff local e na entrega. As [execuções de CI](https://github.com/matoslopes23/ai-dev-starter/actions) devem ser consultadas pelo SHA da entrega.
 
-## Limites e pendências
+A matriz 3.0 foi ampliada para Ubuntu (Python 3.10/3.12/3.14), macOS e Windows (Python 3.12). Declarar a matriz não comprova que ela passou: use o resultado remoto do commit correspondente.
 
-- NÃO EXECUTADO: CI remota, matriz local em Python 3.10/3.12, inspeção visual ou interação da demo em navegador.
-- NÃO EXECUTADO: `quick_validate.py` do skill-creator, pois PyYAML não está instalado nos runtimes disponíveis. A validação local de metadados e o parse YAML alternativo passaram; não se declara execução daquele comando.
-- NÃO EXECUTADO: diagnóstico dos repositórios reais do AgendaLu, pois não foram fornecidos neste escopo. O guia e o manifesto começam sem inferir sua arquitetura.
-- NÃO REALIZADO: commit, push, merge, publicação ou deploy. Proteções de branch e gates de consumidores devem ser configurados no projeto real.
+## Limites
 
-O scanner é heurístico, ignora binários/arquivos grandes/symlinks e diretórios de dependências, e não verifica histórico Git. Adoção de documentação não equivale a certificação de segurança, conformidade ou escalabilidade.
+- Não foi feita inspeção visual/interação da demo no navegador nem diagnóstico de uma aplicação real nesta evolução.
+- A ativação automática dos adaptadores requer smoke test na versão/modalidade de cada ferramenta utilizada.
+- O validador externo quick_validate.py do skill-creator não foi executado por ausência de PyYAML; o gate local valida metadados e o parse YAML alternativo é verificado separadamente quando disponível.
+- O scanner é heurístico: não audita histórico Git, binários, arquivos grandes, symlinks ou todos os formatos de segredo. Adoção do kit não é certificação de segurança ou conformidade.
+- As avaliações com agentes são amostras pequenas, sem inferência estatística ou medição confiável de tokens/custo.

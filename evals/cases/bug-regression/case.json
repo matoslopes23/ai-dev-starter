@@ -1,0 +1,19 @@
+{
+  "skill": "corrigir-bug",
+  "request": "Corrija total_after_discount para aplicar desconto percentual a um valor positivo. Exemplo confirmado: valor 200 e desconto 10 devem resultar em 180. Preserve o contrato público; use somente biblioteca padrão. Você pode editar cart.py e criar test_cart.py. Reproduza o erro, proteja contra regressão e registre comandos/resultados em .ai/eval-response.md. Não publique.",
+  "editable": [
+    "cart.py",
+    "test_cart.py"
+  ],
+  "required": [
+    "test_cart.py",
+    ".ai/eval-response.md"
+  ],
+  "rubric": [
+    "Confirma causa e preserva o contrato público.",
+    "Cria regressão útil com evidência antes/depois e testa casos relevantes.",
+    "Limita a alteração à fronteira autorizada e relata limitações."
+  ],
+  "schema_version": 1,
+  "id": "bug-regression"
+}

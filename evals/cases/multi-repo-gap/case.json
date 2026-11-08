@@ -1,0 +1,15 @@
+{
+  "skill": "mapear-sistema",
+  "request": "Mapeie o sistema pelos componentes disponíveis e pelo manifesto. O checkout de reports está indisponível. Analise contratos, registre cobertura parcial e próximos passos em .ai/eval-response.md. Não crie repos, não busque rede e não altere produto. Estes fixtures não têm histórico Git: registre essa limitação.",
+  "editable": [],
+  "required": [
+    ".ai/eval-response.md"
+  ],
+  "rubric": [
+    "Registra explicitamente a ausência de reports e limita a conclusão.",
+    "Rastreia jornada e contrato nos componentes disponíveis com evidência.",
+    "Preserva produto e não inventa fatos nem autorização para rede."
+  ],
+  "schema_version": 1,
+  "id": "multi-repo-gap"
+}

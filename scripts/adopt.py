@@ -1,15 +1,18 @@
 """Instala um snapshot local do playbook; sem rede, Git mutável ou dependências."""
 import argparse
-import hashlib
 import json
 from pathlib import Path
 import shutil
-import subprocess
 import sys
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
-KIT_VERSION = "2.1.0"
+if __package__:
+    from .installation import build_payload, source_files as kit_files, safe_path, read_optional
+else:
+    from installation import build_payload, source_files as kit_files, safe_path, read_optional
+
+KIT_VERSION = json.loads((ROOT / "kit-version.json").read_text(encoding="utf-8"))["version"]
 BLOCK = """<!-- ai-engineering-kit:start -->
 ## Engenharia de software com IA
 
@@ -22,28 +25,8 @@ O kit não concede autorização para ações externas nem substitui gates do pr
 """
 
 
-def git_value(args):
-    try:
-        result = subprocess.run(["git", "--no-optional-locks", "-c", "core.fsmonitor=false",
-                                 "-C", str(ROOT), *args], capture_output=True,
-                                text=True, timeout=10, check=False)
-        return result.stdout.strip() if result.returncode == 0 else None
-    except (OSError, subprocess.TimeoutExpired):
-        return None
-
-
 def source_files():
-    paths = [ROOT / "AGENTS.md", ROOT / "LICENSE", ROOT / "COMECE_AQUI.md"]
-    paths.extend(ROOT / "scripts" / name for name in
-                 ("configure.py", "doctor.py", "inventory.py", "project_config.py"))
-    for directory in ("docs", "skills", "templates", "prompts", "ia-context"):
-        paths.extend(p for p in sorted((ROOT / directory).rglob("*"))
-                     if p.suffix in {".md", ".json", ".csv"} and p.is_file())
-    for path in paths:
-        if path.is_symlink() or any((ROOT / parent).is_symlink()
-                                    for parent in path.relative_to(ROOT).parents):
-            raise ValueError("Fonte do kit não pode conter symlink.")
-    return paths
+    return kit_files(ROOT)
 
 
 def appended(original, addition):
@@ -84,12 +67,17 @@ def plan_install(target, name, mode, workflow):
     return target, originals, additions
 
 
-def install(target, name, mode, workflow, apply=False):
+def install(target, name, mode, workflow, apply=False, adapters=()):
     target, originals, additions = plan_install(target, name, mode, workflow)
-    sources = source_files()
-    planned = [".ai-kit/" + str(p.relative_to(ROOT)) for p in sources]
-    planned += [".ai-kit/README.md", ".ai-kit/project.json", ".ai-kit/system.json",
+    payload, origin = build_payload(ROOT, adapters)
+    adapter_files = {key: value for key, value in payload.items() if not key.startswith(".ai-kit/")}
+    for relative in adapter_files:
+        if read_optional(safe_path(target, relative)) is not None:
+            raise ValueError("Adaptador já existe; instalação não pode sobrescrevê-lo.")
+    planned = [key for key in payload if key.startswith(".ai-kit/")]
+    planned += [".ai-kit/project.json", ".ai-kit/system.json",
                 ".ai-kit/origin.json", "AGENTS.md (acrescentar)", ".gitignore (acrescentar)"]
+    planned += list(adapter_files)
     if not apply:
         return {"applied": False, "files": planned}
     config = {
@@ -105,30 +93,19 @@ def install(target, name, mode, workflow, apply=False):
     system = {"schema_version": 1, "name": name.strip(), "repositories": [],
               "journeys": [], "external_systems": [],
               "coverage": {"status": "not-started", "missing_repositories": []}}
-    status = git_value(["status", "--porcelain"])
-    origin = {"kit_version": KIT_VERSION, "source_commit": git_value(["rev-parse", "HEAD"]),
-              "source_dirty": bool(status) if status is not None else None,
-              "sha256": {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
-                         for p in sources}}
     # Stage fora do destino; só publicar após todos os arquivos estarem prontos.
     with tempfile.TemporaryDirectory(prefix="ai-kit-stage-") as tmp:
         staged = Path(tmp) / "bundle"
         staged.mkdir()
-        for source in sources:
-            output = staged / source.relative_to(ROOT)
+        for relative, content in payload.items():
+            if not relative.startswith(".ai-kit/"):
+                continue
+            output = staged / relative.removeprefix(".ai-kit/")
             output.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(source, output)
+            output.write_bytes(content)
         for filename, data in (("project.json", config), ("system.json", system), ("origin.json", origin)):
             (staged / filename).write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        (staged / "README.md").write_text(
-            "# Playbook instalado\n\nLeia [AGENTS.md](AGENTS.md), [a configuração](project.json) "
-            "e [o roteador](ia-context/CONTEXT_ROUTER.md).\n\n"
-            "Primeiro uso: [comece aqui](COMECE_AQUI.md). "
-            "[Configuração e diagnóstico](docs/20-configuracao.md) usam scripts incluídos.\n\n"
-            "Para configurar, veja [adaptação](docs/01-adaptacao.md); "
-            "para atualizar, [portabilidade](docs/17-portabilidade.md).\n"
-            "Gates vazios são não configurados. Código e .ai/ ficam na raiz da aplicação.\n",
-            encoding="utf-8")
+        (staged / "README.md").write_bytes(payload[".ai-kit/README.md"])
         # Reconfira o snapshot imediatamente antes de gravar. Uso concorrente não é suportado.
         _, current, _ = plan_install(target, name, mode, workflow)
         if current != originals:
@@ -138,12 +115,16 @@ def install(target, name, mode, workflow, apply=False):
         written = []
         try:
             shutil.copytree(staged, bundle, dirs_exist_ok=True)
-            for filename, data in additions.items():
+            for filename, data in {**additions, **adapter_files}.items():
+                path = safe_path(target, filename)
+                if filename in adapter_files and path.exists():
+                    raise ValueError("Adaptador mudou durante a preparação.")
+                path.parent.mkdir(parents=True, exist_ok=True)
                 written.append(filename)
-                (target / filename).write_bytes(data)
+                path.write_bytes(data)
         except Exception:
             for filename in reversed(written):
-                old = originals[filename]
+                old = originals.get(filename)
                 if old is None:
                     (target / filename).unlink(missing_ok=True)
                 else:
@@ -159,10 +140,11 @@ def main():
     parser.add_argument("--name", required=True)
     parser.add_argument("--mode", choices=("new", "existing", "multi-repo"), default="existing")
     parser.add_argument("--git-workflow", choices=("undecided", "github-flow", "trunk-based", "gitflow"), default="undecided")
+    parser.add_argument("--adapter", action="append", choices=("codex", "claude", "copilot", "cursor"), default=[])
     parser.add_argument("--apply", action="store_true", help="Gravar o plano local; sem esta opção apenas inspeciona.")
     args = parser.parse_args()
     try:
-        print(json.dumps(install(args.target, args.name, args.mode, args.git_workflow, args.apply),
+        print(json.dumps(install(args.target, args.name, args.mode, args.git_workflow, args.apply, args.adapter),
                          ensure_ascii=False, indent=2))
     except (OSError, ValueError) as error:
         print("Não instalado: " + str(error), file=sys.stderr)

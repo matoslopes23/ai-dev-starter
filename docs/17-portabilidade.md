@@ -4,7 +4,7 @@
 
 **Central:** mantenha este kit separado e indique seu caminho nos prompts. O mapa do sistema fica em uma pasta própria, com `system.json` preenchido a partir do [exemplo](../templates/system.example.json). É útil para diagnóstico antes de tocar nos repositórios.
 
-**Instalado:** `scripts/adopt.py` copia um snapshot em `.ai-kit/`, cria configuração específica e acrescenta referências em `AGENTS.md` e `.gitignore` do destino. Cada repo pode operar sem o checkout central. Documentos do kit ficam relativos a `.ai-kit/`; código e estado continuam na raiz da aplicação. O snapshot inclui entrada inicial, configuração, diagnóstico e inventário em `scripts/`. Não contém demo, workshop, workflow, instalador ou gate do kit; configure gates próprios do consumidor.
+**Instalado:** `scripts/adopt.py` copia um snapshot em `.ai-kit/`, cria configuração específica e acrescenta referências em `AGENTS.md` e `.gitignore` do destino. Cada repo pode operar sem o checkout central. Documentos do kit ficam relativos a `.ai-kit/`; código e estado continuam na raiz da aplicação. O snapshot inclui configuração, diagnóstico, inventário e update/restore em `scripts/`, além de adaptadores opcionais fora de `.ai-kit/`. Não contém demo, workshop, CI, instalador, harness de evals ou gate do kit; configure gates próprios do consumidor.
 
 ## Contrato do comando de adoção
 
@@ -19,6 +19,8 @@ O destino deve ser um diretório local existente. O primeiro comando valida e mo
 
 O comando preserva os bytes anteriores de `AGENTS.md` e `.gitignore`, acrescentando apenas um bloco delimitado e entradas de ignore locais. Recusa instalação existente, marcador anterior inconsistente, colisões, nomes inválidos e symlinks nos destinos de escrita. Não faz merge automático de duas instalações. `.ai-kit/origin.json` registra versão do kit, commit de origem e se havia mudanças locais; um commit com dirty=true não identifica sozinho os bytes copiados. Revise o snapshot antes de versionar.
 
+No formato 2 do manifesto, `managed` registra hashes dos arquivos relativos à raiz da aplicação, incluindo adaptadores; `sha256` mantém a visão relativa do payload para compatibilidade. Arquivos de configuração e instruções da raiz não são gerenciados pelo update. `--adapter` seleciona [integrações](21-integracoes.md) sem sobrescrever entradas existentes.
+
 Uma adoção exige executar sem outro processo editando os mesmos arquivos. Em falha de gravação, o comando tenta restaurar os arquivos que escreveu; confira o estado do destino antes de repetir. Sem `--apply`, não cria diretórios ou arquivos no destino.
 
 ## Configuração após a cópia
@@ -29,6 +31,6 @@ Abra a aplicação e instrua o agente a ler o `AGENTS.md` da raiz. Se o agente n
 
 ## Atualizar sem perder decisões
 
-Não rode uma cópia forçada por cima do kit adotado. Leia `origin.json`, compare a versão instalada com o kit desejado e gere a nova instalação em um diretório temporário vazio. Revise as diferenças de docs/skills/templates/scripts, preserve `project.json`, `system.json` e as decisões locais, e aplique o diff em uma tarefa dedicada. Registre nova origem após a revisão. Execute links e gates da aplicação e confira instruções da raiz. Instalações 2.0 não tinham scripts; inclua os utilitários e campos novos ao migrar para 2.1, mantendo as configurações reais.
+Use [update com plano e recuperação](22-atualizacao.md). Ele compara hashes-base/local/nova origem, preserva configuração e personalizações quando a origem não mudou, e recusa conflitos sem force. Se o kit instalado ainda não contém update, execute `scripts/update.py` pelo checkout central revisado. Instalações 2.1 com hashes legados são reconhecidas; instalações sem base confiável exigem migração manual. Execute os gates da aplicação após a revisão.
 
 Versione o snapshot e configurações sem segredos conforme a política do projeto. `.ai/` é estado local descartável. Não publique inventário privado, caminhos pessoais ou dados do sistema por acidente. O comando não modifica workflows, dependências, remotos ou proteções do repositório.
