@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taskboard · Desenvolvimento com IA</title>
+<style>
+:root { font-family: system-ui, sans-serif; color: #e8eef6; background: #101827; }
+body { max-width: 780px; margin: 6vh auto; padding: 24px; }
+header small { text-transform: uppercase; letter-spacing: .12em; color: #74e8ca; }
+h1 { font-size: clamp(2rem, 6vw, 3.5rem); margin: 12px 0; }
+p { color: #bac7da; line-height: 1.6; }
+section { background: #1b293d; border: 1px solid #34445b; border-radius: 20px; padding: 24px; margin-top: 24px; }
+form { display: flex; gap: 12px; flex-wrap: wrap; }
+input[type=text] { flex: 1; min-width: 180px; padding: 14px; background: #101827; color: #fff; border: 1px solid #657b98; border-radius: 9px; font: inherit; }
+button { background: #74e8ca; color: #10201f; font: inherit; font-weight: 700; padding: 12px 18px; border: 0; border-radius: 9px; cursor: pointer; }
+button:disabled { opacity: .5; cursor: wait; }
+:focus-visible { outline: 3px solid #f7c875; outline-offset: 4px; }
+ul { padding: 0; list-style: none; }
+li { display: flex; gap: 14px; padding: 16px 0; border-bottom: 1px solid #34445b; overflow-wrap: anywhere; }
+li label { display: flex; gap: 12px; align-items: center; }
+input[type=checkbox] { width: 22px; height: 22px; accent-color: #74e8ca; flex-shrink: 0; }
+.done { text-decoration: line-through; color: #bac7da; }
+#error { color: #ffb4b4; min-height: 1.5em; }
+footer { font-size: .85rem; margin-top: 32px; color: #bac7da; }
+</style>
+</head>
+<body>
+<header><small>Laboratório de desenvolvimento com IA</small><h1>Menos contexto.<br>Mais intenção.</h1><p>Uma tarefa, um critério de aceite e uma mudança verificável por vez.</p></header>
+<section aria-label="Lista de tarefas">
+<form id="form"><label for="title" hidden>Título da tarefa</label><input id="title" type="text" maxlength="80" placeholder="O que vamos construir?" aria-label="Título da tarefa" required><button id="add">Adicionar</button></form>
+<p id="error" role="alert"></p>
+<!-- WORKSHOP: inserir controles do filtro aqui -->
+<p id="summary" role="status"></p><ul id="tasks"></ul><p id="empty">Nenhuma tarefa ainda. Comece com uma pequena entrega.</p>
+</section>
+<footer>Demo local · dados fictícios · sem persistência · Python + HTML, sem dependências</footer>
+<script>
+const tasks = [];
+const list = document.querySelector('#tasks');
+const error = document.querySelector('#error');
+const form = document.querySelector('#form');
+function render() {
+  list.replaceChildren();
+  const visibleTasks = tasks; // WORKSHOP: selecionar somente pendentes quando solicitado
+  for (const task of visibleTasks) {
+    const li = document.createElement('li');
+    const label = document.createElement('label');
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox'; checkbox.checked = task.done;
+    checkbox.addEventListener('change', () => { task.done = checkbox.checked; render(); });
+    const title = document.createElement('span');
+    title.textContent = task.title; // Entrada nunca vira HTML.
+    title.className = task.done ? 'done' : '';
+    label.append(checkbox, title); li.append(label); list.append(li);
+  }
+  document.querySelector('#empty').hidden = visibleTasks.length > 0;
+  document.querySelector('#summary').textContent = `${tasks.filter(t => !t.done).length} pendentes de ${tasks.length} tarefas`;
+}
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+  const button = document.querySelector('#add');
+  if (button.disabled) return;
+  button.disabled = true; error.textContent = '';
+  try {
+    const response = await fetch('/api/tasks', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({title:document.querySelector('#title').value})});
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Não foi possível criar a tarefa.');
+    tasks.push(result); form.reset(); render(); document.querySelector('#title').focus();
+  } catch (e) { error.textContent = e.message || 'Falha de conexão. Tente novamente.'; }
+  finally { button.disabled = false; }
+});
+render();
+</script>
+</body>
+</html>

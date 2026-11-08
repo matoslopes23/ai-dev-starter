@@ -1,0 +1,18 @@
+{
+  "purpose": "Substituir pelo objetivo confirmado do produto",
+  "stack": ["Substituir pela linguagem e runtime confirmados"],
+  "architecture": {
+    "style": "Substituir pelo estilo observado ou decidido",
+    "boundaries": [],
+    "constraints": []
+  },
+  "profiles": [],
+  "components": [
+    {
+      "name": "produto",
+      "path": ".",
+      "responsibility": "Substituir pela responsabilidade real"
+    }
+  ],
+  "checks": {}
+}

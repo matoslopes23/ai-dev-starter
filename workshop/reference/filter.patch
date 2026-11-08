@@ -1,0 +1,32 @@
+--- a/examples/taskboard/index.html
++++ b/examples/taskboard/index.html
+@@ -29,7 +29,7 @@
+ <section aria-label="Lista de tarefas">
+ <form id="form"><label for="title" hidden>Título da tarefa</label><input id="title" type="text" maxlength="80" placeholder="O que vamos construir?" aria-label="Título da tarefa" required><button id="add">Adicionar</button></form>
+ <p id="error" role="alert"></p>
+-<!-- WORKSHOP: inserir controles do filtro aqui -->
++<label><input id="pending-only" type="checkbox"> Somente pendentes</label>
+ <p id="summary" role="status"></p><ul id="tasks"></ul><p id="empty">Nenhuma tarefa ainda. Comece com uma pequena entrega.</p>
+ </section>
+ <footer>Demo local · dados fictícios · sem persistência · Python + HTML, sem dependências</footer>
+@@ -40,7 +40,8 @@
+ const form = document.querySelector('#form');
+ function render() {
+   list.replaceChildren();
+-  const visibleTasks = tasks; // WORKSHOP: selecionar somente pendentes quando solicitado
++  const pendingOnly = document.querySelector('#pending-only').checked;
++  const visibleTasks = pendingOnly ? tasks.filter(task => !task.done) : tasks;
+   for (const task of visibleTasks) {
+     const li = document.createElement('li');
+     const label = document.createElement('label');
+@@ -53,8 +54,10 @@
+     label.append(checkbox, title); li.append(label); list.append(li);
+   }
+   document.querySelector('#empty').hidden = visibleTasks.length > 0;
++  document.querySelector('#empty').textContent = pendingOnly ? 'Nenhuma tarefa pendente.' : 'Nenhuma tarefa ainda. Comece com uma pequena entrega.';
+   document.querySelector('#summary').textContent = `${tasks.filter(t => !t.done).length} pendentes de ${tasks.length} tarefas`;
+ }
++document.querySelector('#pending-only').addEventListener('change', render);
+ form.addEventListener('submit', async event => {
+   event.preventDefault();
+   const button = document.querySelector('#add');

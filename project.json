@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "name": "engenharia-software-ia",
+  "purpose": "Kit portável para engenharia de software assistida por IA",
+  "kind": "kit",
+  "stack": [
+    "Markdown",
+    "Python 3.10+ (automação e demo)",
+    "HTML/JavaScript (demo opcional)"
+  ],
+  "base_branch": "main",
+  "git_workflow": "github-flow",
+  "components": [
+    {
+      "name": "playbook",
+      "path": ".",
+      "responsibility": "Contratos, práticas, skills e templates"
+    },
+    {
+      "name": "automation",
+      "path": "scripts",
+      "responsibility": "Adoção, inventário e gates locais"
+    },
+    {
+      "name": "demo",
+      "path": "examples/taskboard",
+      "responsibility": "Exercício opcional sem dados reais"
+    }
+  ],
+  "checks": {
+    "kit": "python3 scripts/verify.py"
+  },
+  "production": false,
+  "risks": [
+    "Scanner heurístico não substitui ferramenta especializada",
+    "Demo sem persistência ou autenticação",
+    "Adoção não equivale a conformidade nem valida aplicação consumidora"
+  ],
+  "architecture": {
+    "style": "Kit de procedimentos e automações locais",
+    "boundaries": [
+      "Playbook independente do produto",
+      "Automação sem execução automática de checks do consumidor"
+    ],
+    "constraints": [
+      "Não impor linguagem ou estilo ao produto"
+    ]
+  },
+  "profiles": []
+}
